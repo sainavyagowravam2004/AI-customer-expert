@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Knowledge Brain — Hybrid RAG{% endblock %}
+{% block content %}
+<div class="space-y-8">
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="bg-white p-5 rounded-xl border"><div class="text-xs text-slate-500">Indexed Pages & Docs</div><div class="text-2xl font-bold mt-1">{{ pages|length }}</div></div>
+    <div class="bg-white p-5 rounded-xl border"><div class="text-xs text-slate-500">Hybrid Vector + BM25 Chunks</div><div class="text-2xl font-bold text-indigo-600 mt-1">{{ chunks_count }}</div></div>
+    <div class="bg-white p-5 rounded-xl border"><div class="text-xs text-slate-500">Active Instructions & Skills</div><div class="text-2xl font-bold text-emerald-600 mt-1">{{ rules|length }}</div></div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <section class="bg-white p-6 rounded-xl border space-y-3">
+      <h2 class="text-base font-bold">1. Crawl Website / Sitemap</h2>
+      <p class="text-xs text-slate-500">Extracts clean text, tracks internal links, hashes content for diff history, and creates hybrid embeddings.</p>
+      <form method="post" action="/knowledge/crawl" class="flex gap-2">
+        <input name="root_url" type="url" required placeholder="https://docs.python.org/3/tutorial/" class="flex-1 border rounded-lg px-3 py-2 text-xs" />
+        <button class="px-4 py-2 bg-indigo-600 text-white text-xs font-medium rounded-lg">Crawl & Index</button>
+      </form>
+    </section>
+
+    <section class="bg-white p-6 rounded-xl border space-y-3">
+      <h2 class="text-base font-bold">2. Add Policy / FAQ / Markdown File</h2>
+      <form method="post" action="/knowledge/upload" enctype="multipart/form-data" class="space-y-2">
+        <div class="flex gap-2">
+          <input name="title" placeholder="Document Title (e.g. Refund Policy)" class="flex-1 border rounded-lg px-3 py-1.5 text-xs" />
+          <input name="file" type="file" accept=".txt,.md,.csv,.json" class="text-xs" />
+        </div>
+        <textarea name="manual_text" rows="2" placeholder="Or paste FAQ / product manual text directly here..." class="w-full border rounded-lg px-3 py-1.5 text-xs"></textarea>
+        <button class="px-4 py-1.5 bg-slate-900 text-white text-xs font-medium rounded-lg">Index Document</button>
+      </form>
+    </section>
+  </div>
+
+  <section class="bg-white p-6 rounded-xl border">
+    <h2 class="text-base font-bold mb-2">3. Test Hybrid Search (pgvector halfvec + BM25 RRF)</h2>
+    <form hx-post="/knowledge/search" hx-target="#search-results" class="flex gap-2">
+      <input name="query" required placeholder="Ask a question to inspect retrieved chunks & RRF scores..." class="flex-1 border rounded-lg px-3 py-2 text-xs" />
+      <button class="px-4 py-2 bg-indigo-600 text-white text-xs font-medium rounded-lg">Search Brain</button>
+    </form>
+    <div id="search-results"></div>
+  </section>
+
+  <section class="bg-white p-6 rounded-xl border">
+    <h2 class="text-base font-bold mb-3">4. Business Instructions & Skills</h2>
+    <form method="post" action="/knowledge/instructions" class="grid grid-cols-1 md:grid-cols-4 gap-2 mb-4">
+      <select name="kind" class="border rounded px-2.5 py-2 text-xs">
+        <option value="instruction">Instruction (Always Enforce)</option>
+        <option value="skill">Skill (Workflow Procedure)</option>
+      </select>
+      <input name="title" required placeholder="Rule Title" class="border rounded px-3 py-2 text-xs" />
+      <input name="content" required placeholder="Rule content (e.g. Never promise refunds over 30 days)" class="border rounded px-3 py-2 text-xs" />
+      <button class="px-4 py-2 bg-emerald-600 text-white text-xs font-medium rounded">Save Rule</button>
+    </form>
+    <div class="space-y-2 text-xs">
+      {% for r in rules %}
+      <div class="p-3 bg-slate-50 rounded border flex justify-between">
+        <div><span class="uppercase font-bold text-indigo-600">[{{ r.kind }}]</span> <strong>{{ r.title }}:</strong> {{ r.content }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="bg-white p-6 rounded-xl border">
+    <h2 class="text-base font-bold mb-3">5. Indexed Knowledge Pages</h2>
+    <table class="w-full text-left text-xs border-collapse">
+      <thead><tr class="border-b text-slate-500"><th class="py-2">Title</th><th>URL / Source</th><th>Size</th><th>Updated</th></tr></thead>
+      <tbody>
+        {% for p in pages %}
+        <tr class="border-b"><td class="py-2 font-medium">{{ p.title }}</td><td class="text-slate-500">{{ p.url }}</td><td>{{ p.chars }} chars</td><td>{{ p.updated_at }}</td></tr>
+        {% else %}
+        <tr><td colspan="4" class="py-3 text-slate-400">No pages indexed yet. Crawl a URL or paste a policy above!</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+</div>
+{% endblock %}

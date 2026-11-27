@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Go Live in 15 Minutes{% endblock %}
+{% block content %}
+<div class="space-y-6">
+  <div class="bg-white p-6 rounded-xl border flex flex-wrap justify-between items-center gap-4">
+    <div>
+      <h1 class="text-xl font-bold">Feature 6: Go Live in 15 Minutes</h1>
+      <p class="text-xs text-slate-500 mt-1">Guided onboarding wizard: ingest knowledge, auto-generate starting evals, and verify your Readiness Score.</p>
+    </div>
+    <div class="text-right">
+      <div class="text-xs text-slate-500">Current Readiness Score</div>
+      <div class="text-3xl font-extrabold {{ 'text-emerald-600' if readiness >= 80 else 'text-amber-600' }}">{{ readiness }} / 100</div>
+      <div class="text-[11px] text-slate-500">{{ 'READY FOR LIVE CHAT' if readiness >= 80 else 'Complete setup below to reach 80+' }}</div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+    <div class="bg-white p-4 rounded-xl border"><strong>Step 1: Knowledge Indexed</strong><div class="text-lg font-bold mt-1">{{ pages_cnt }} pages / {{ chunks_cnt }} chunks</div></div>
+    <div class="bg-white p-4 rounded-xl border"><strong>Step 2: Auto-Generated Eval Cases</strong><div class="text-lg font-bold mt-1">{{ eval_count }} runs completed</div></div>
+    <div class="bg-white p-4 rounded-xl border"><strong>Step 3: Live Chat Gate</strong><div class="text-lg font-bold mt-1 {{ 'text-emerald-600' if readiness >= 80 else 'text-slate-400' }}">{{ 'UNLOCKED' if readiness >= 80 else 'LOCKED (<80)' }}</div></div>
+  </div>
+
+  <form method="post" action="/go-live/launch" class="bg-white p-6 rounded-xl border space-y-4">
+    <h2 class="text-base font-bold">One-Click Business Onboarding Setup</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label class="block text-xs font-medium text-slate-600">Help Center URL or Sitemap</label>
+        <input name="website_url" value="{{ user.website_url or '' }}" placeholder="https://support.brilliantdirectories.com/support/sitemap.xml" class="mt-1 w-full border rounded-lg px-3 py-2 text-xs" />
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-slate-600">Brand Tone of Voice</label>
+        <input name="brand_tone" value="{{ user.brand_tone or 'Helpful, accurate, and concise' }}" class="mt-1 w-full border rounded-lg px-3 py-2 text-xs" />
+      </div>
+    </div>
+    <div>
+      <label class="block text-xs font-medium text-slate-600">Starter Company Policy / FAQ (Auto-generates benchmark tests)</label>
+      <textarea name="starter_faq" rows="3" required placeholder="Paste your core product FAQ, shipping rules, or support guide here..." class="mt-1 w-full border rounded-lg px-3 py-2 text-xs"></textarea>
+    </div>
+    <button class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg">
+      Build Knowledge Brain, Generate Evals & Compute Readiness Score
+    </button>
+  </form>
+</div>
+{% endblock %}

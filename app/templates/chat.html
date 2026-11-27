@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Live Support Chat{% endblock %}
+{% block content %}
+<div class="bg-white rounded-xl border border-slate-200 flex flex-col h-[75vh]">
+  <div class="p-4 border-b flex justify-between items-center">
+    <div>
+      <h1 class="font-bold text-base">Grounded Customer Support Chat</h1>
+      <p class="text-xs text-slate-500">Answers strictly from your Knowledge Brain + Active Instructions + Learned Lessons.</p>
+    </div>
+    <select form="chat-form" name="role_id" class="border rounded-lg px-3 py-1.5 text-xs">
+      {% for r in roles %}
+      <option value="{{ r.id }}">{{ r.name }} ({{ r.default_model }})</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div id="chat-messages" class="flex-1 overflow-y-auto p-6 space-y-4">
+    {% for m in messages %}
+      {% if m.role == 'user' %}
+      <div class="flex justify-end"><div class="bg-indigo-600 text-white px-4 py-2.5 rounded-xl max-w-xl text-sm">{{ m.content }}</div></div>
+      {% else %}
+      <div class="flex justify-start"><div class="bg-slate-100 text-slate-900 px-4 py-3 rounded-xl max-w-2xl text-sm whitespace-pre-wrap">{{ m.content }}</div></div>
+      {% endif %}
+    {% else %}
+      <div class="text-center text-xs text-slate-400 mt-12">Ask any customer support question below to test your RAG pipeline!</div>
+    {% endfor %}
+  </div>
+  <form id="chat-form" hx-post="/chat/send" hx-target="#chat-messages" hx-swap="beforeend" onsubmit="setTimeout(() => this.reset(), 50)" class="p-4 border-t flex gap-2">
+    <input type="hidden" name="session_id" value="{{ session_id }}" />
+    <input name="message" required placeholder="Type a customer question..." class="flex-1 border rounded-lg px-3 py-2 text-sm" />
+    <button class="px-5 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg">Send</button>
+  </form>
+</div>
+{% endblock %}

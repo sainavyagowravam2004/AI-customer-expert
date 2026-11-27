@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Evals & Self-Improvement Loop{% endblock %}
+{% block content %}
+<div class="space-y-6">
+  <section class="bg-white p-6 rounded-xl border">
+    <div class="flex justify-between items-center mb-4">
+      <div>
+        <h2 class="text-base font-bold">1. Benchmark Eval Suite</h2>
+        <p class="text-xs text-slate-500">Failed evals automatically generate approved lessons injected into future prompts.</p>
+      </div>
+      <form method="post" action="/evals/run">
+        <button class="px-4 py-2 bg-indigo-600 text-white text-xs font-semibold rounded-lg">Run All Evals Now</button>
+      </form>
+    </div>
+    <form method="post" action="/evals/cases" class="grid grid-cols-1 md:grid-cols-3 gap-2 mb-4">
+      <input name="question" required placeholder="Test Question" class="border rounded px-3 py-2 text-xs" />
+      <input name="expected_answer" required placeholder="Expected Key Answer" class="border rounded px-3 py-2 text-xs" />
+      <button class="bg-slate-900 text-white text-xs font-medium rounded px-4 py-2">Add Eval Case</button>
+    </form>
+    <table class="w-full text-left text-xs border-collapse">
+      <thead><tr class="border-b text-slate-500"><th class="py-2">Question</th><th>Expected Answer</th></tr></thead>
+      <tbody>
+        {% for c in cases %}
+        <tr class="border-b"><td class="py-2">{{ c.question }}</td><td class="text-slate-600">{{ c.expected_answer }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  <section class="bg-white p-6 rounded-xl border">
+    <h2 class="text-base font-bold mb-3">2. Self-Learned Rules (RLHF & Eval Loop)</h2>
+    <div class="space-y-2 text-xs">
+      {% for l in lessons %}
+      <div class="p-3 bg-emerald-50/60 border border-emerald-200 rounded">
+        <span class="uppercase font-bold text-emerald-700">[{{ l.source_type }}]</span> <strong>Trigger:</strong> {{ l.trigger_pattern }} &rarr; <strong>Rule:</strong> {{ l.learned_rule }}
+      </div>
+      {% else %}
+      <div class="text-slate-400">No lessons learned yet. Edit an AI email draft or run evals above!</div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="bg-white p-6 rounded-xl border">
+    <h2 class="text-base font-bold mb-3">3. Recent Eval Results</h2>
+    <table class="w-full text-left text-xs border-collapse">
+      <thead><tr class="border-b text-slate-500"><th class="py-2">Question</th><th>Score</th><th>Status</th><th>Model Answer</th></tr></thead>
+      <tbody>
+        {% for r in results %}
+        <tr class="border-b"><td class="py-2">{{ r.question }}</td><td>{{ r.score }}</td><td>{{ 'PASS' if r.passed else 'FAIL' }}</td><td class="text-slate-600">{{ r.actual_answer[:160] }}...</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+</div>
+{% endblock %}

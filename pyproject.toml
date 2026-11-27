@@ -1,0 +1,33 @@
+[project]
+name = "ai-customer-expert"
+version = "0.1.0"
+description = "Async SaaS API for AI Customer Expert"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "fastapi[standard]",
+    "sqlalchemy[asyncio]>=2.0",
+    "asyncpg",
+    "alembic",
+    "procrastinate[psycopg]",
+    "psycopg[binary]",
+    "jinja2",
+    "python-multipart",
+    "pydantic-settings",
+    "cryptography",
+    "passlib[bcrypt]",
+    "httpx",
+    "beautifulsoup4",
+    "pgvector",
+    "boto3",
+    "anthropic",
+    "google-genai",
+    "openai",
+]
+
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["app*"]
